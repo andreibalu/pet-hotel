@@ -104,7 +104,7 @@ export default function Home() {
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Înregistrați-vă hotelul în platforma noastră și conectați-vă cu clienți noi din Timișoara și împrejurimi.
             </p>
-            <Link href="/register" className="inline-block bg-white text-primary font-medium py-3 px-6 rounded-md hover:bg-gray-100 transition-colors">
+            <Link href="/register" className="inline-block bg-white text-gray-900 font-semibold py-3 px-6 rounded-md hover:bg-gray-50 hover:text-black transition-colors border-2 border-white shadow-lg">
               Înregistrează-ți afacerea
             </Link>
           </div>
