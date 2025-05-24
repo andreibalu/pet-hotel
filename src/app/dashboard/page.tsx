@@ -47,9 +47,12 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                Bun venit, {profile.full_name || profile.email}!
+                {profile.user_type === 'pet_owner' ? 'Profilul meu' : 'Dashboard'}
               </h1>
               <p className="text-gray-600">
+                Bun venit, {profile.full_name || profile.email}!
+              </p>
+              <p className="text-sm text-gray-500">
                 {profile.user_type === 'pet_owner' 
                   ? 'Cont proprietar de animale' 
                   : 'Cont proprietar de hotel'}

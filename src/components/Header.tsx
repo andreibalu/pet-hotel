@@ -45,7 +45,7 @@ export default function Header() {
                   href="/dashboard" 
                   className="text-gray-700 hover:text-primary transition-colors"
                 >
-                  Dashboard
+                  {profile?.user_type === 'pet_owner' ? 'Profil' : 'Dashboard'}
                 </Link>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">
@@ -124,7 +124,7 @@ export default function Header() {
                       className="block text-gray-700 hover:text-primary"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Dashboard
+                      {profile?.user_type === 'pet_owner' ? 'Profil' : 'Dashboard'}
                     </Link>
                   </li>
                   <li className="px-4 py-2 text-sm text-gray-600">

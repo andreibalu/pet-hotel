@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import EmailConfirmationModal from '@/components/EmailConfirmationModal';
 import { createClient } from '@/lib/supabase/client';
 import { UserType } from '@/types/auth';
 
@@ -20,6 +21,8 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -29,6 +32,12 @@ export default function RegisterPage() {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+  };
+
+  const handleCloseModal = () => {
+    setShowEmailModal(false);
+    // Optionally redirect to login page or stay on current page
+    router.push('/login');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -95,9 +104,12 @@ export default function RegisterPage() {
           console.error('Profile creation exception:', profileErr);
         }
 
+        // Store the email and show confirmation modal
+        setRegisteredEmail(formData.email);
+        setShowEmailModal(true);
+        
         // Profile will be created automatically by the database trigger
-        // For development, we'll redirect to dashboard regardless of email confirmation
-        router.push('/dashboard');
+        // Note: For production, user needs to confirm email before accessing dashboard
       }
     } catch {
       setError('A apărut o eroare. Vă rugăm să încercați din nou.');
@@ -283,6 +295,13 @@ export default function RegisterPage() {
         </div>
       </main>
       <Footer />
+      
+      {/* Email Confirmation Modal */}
+      <EmailConfirmationModal 
+        isOpen={showEmailModal}
+        onClose={handleCloseModal}
+        userEmail={registeredEmail}
+      />
     </>
   );
 } 
