@@ -43,7 +43,11 @@ export default function Home() {
                     </select>
                   </div>
                   <div className="flex items-end">
-                    <Link href="/hoteluri" className="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    <Link 
+                      href="/hoteluri" 
+                      className="w-full !bg-primary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                      style={{ backgroundColor: '#3498db' }}
+                    >
                       Caută
                     </Link>
                   </div>

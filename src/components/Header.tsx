@@ -29,7 +29,11 @@ export default function Header() {
             <Link href="/contact" className="text-gray-700 hover:text-primary transition-colors">
               Contact
             </Link>
-            <Link href="/login" className="text-white bg-primary hover:bg-blue-600 px-4 py-2 rounded-md transition-colors">
+            <Link 
+              href="/login" 
+              className="text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md transition-colors"
+              style={{ backgroundColor: '#3498db' }}
+            >
               Autentificare
             </Link>
           </nav>
@@ -70,7 +74,11 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="block text-white bg-primary hover:bg-blue-600 px-4 py-2 rounded-md w-full text-center">
+                <Link 
+                  href="/login" 
+                  className="block text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md w-full text-center"
+                  style={{ backgroundColor: '#3498db' }}
+                >
                   Autentificare
                 </Link>
               </li>

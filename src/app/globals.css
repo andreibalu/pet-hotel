@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Ensure buttons are visible */
+.bg-primary {
+  background-color: #3498db !important;
+}
+
+/* Only style actual buttons with background styling */
+a[href="/login"][style*="background-color"] {
+  background-color: #3498db !important;
+  color: white !important;
+  display: inline-block !important;
+}
