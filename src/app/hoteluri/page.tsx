@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -255,11 +256,12 @@ export default function HotelListingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedHotels.map(hotel => (
               <div key={hotel.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <div className="h-48 overflow-hidden">
-                  <img 
+                <div className="h-48 overflow-hidden relative">
+                  <Image 
                     src={hotel.image} 
                     alt={hotel.name} 
-                    className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                    fill
+                    className="object-cover transition-transform hover:scale-105 duration-300"
                   />
                 </div>
                 <div className="p-6">

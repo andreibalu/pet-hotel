@@ -73,7 +73,7 @@ export default function RegisterPage() {
         // Redirect to confirmation page or dashboard
         router.push('/dashboard');
       }
-    } catch (err) {
+    } catch {
       setError('A apărut o eroare. Vă rugăm să încercați din nou.');
     } finally {
       setLoading(false);
