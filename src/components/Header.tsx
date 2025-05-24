@@ -2,9 +2,16 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, profile, loading, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-md">
@@ -29,13 +36,46 @@ export default function Header() {
             <Link href="/contact" className="text-gray-700 hover:text-primary transition-colors">
               Contact
             </Link>
-            <Link 
-              href="/login" 
-              className="text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md transition-colors"
-              style={{ backgroundColor: '#3498db' }}
-            >
-              Autentificare
-            </Link>
+            
+            {loading ? (
+              <div className="text-gray-500">Se încarcă...</div>
+            ) : user ? (
+              <div className="flex items-center space-x-4">
+                <Link 
+                  href="/dashboard" 
+                  className="text-gray-700 hover:text-primary transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">
+                    {profile?.full_name || user.email}
+                  </span>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-red-600 hover:text-red-700 text-sm transition-colors"
+                  >
+                    Delogare
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link 
+                  href="/login" 
+                  className="text-gray-700 hover:text-primary transition-colors"
+                >
+                  Autentificare
+                </Link>
+                <Link 
+                  href="/register" 
+                  className="text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md transition-colors"
+                  style={{ backgroundColor: '#3498db' }}
+                >
+                  Înregistrare
+                </Link>
+              </div>
+            )}
           </nav>
           
           {/* Mobile Menu Button */}
@@ -73,15 +113,55 @@ export default function Header() {
                   Contact
                 </Link>
               </li>
-              <li>
-                <Link 
-                  href="/login" 
-                  className="block text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md w-full text-center"
-                  style={{ backgroundColor: '#3498db' }}
-                >
-                  Autentificare
-                </Link>
-              </li>
+              
+              {loading ? (
+                <li className="text-gray-500 px-4">Se încarcă...</li>
+              ) : user ? (
+                <>
+                  <li>
+                    <Link 
+                      href="/dashboard" 
+                      className="block text-gray-700 hover:text-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li className="px-4 py-2 text-sm text-gray-600">
+                    {profile?.full_name || user.email}
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left text-red-600 hover:text-red-700"
+                    >
+                      Delogare
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link 
+                      href="/login" 
+                      className="block text-gray-700 hover:text-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Autentificare
+                    </Link>
+                  </li>
+                  <li>
+                    <Link 
+                      href="/register" 
+                      className="block text-white !bg-primary hover:bg-blue-600 px-4 py-2 rounded-md w-full text-center"
+                      style={{ backgroundColor: '#3498db' }}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Înregistrare
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         )}

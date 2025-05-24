@@ -2,18 +2,26 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { createClient } from '@/lib/supabase/client';
+import { UserType } from '@/types/auth';
 
 export default function RegisterPage() {
-  const [userType, setUserType] = useState<'pet-owner' | 'hotel-owner' | null>(null);
+  const [userType, setUserType] = useState<UserType | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
     terms: false
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const supabase = createClient();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -23,10 +31,53 @@ export default function RegisterPage() {
     });
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Registration logic would go here in a real application
-    console.log(`Register as ${userType}:`, formData);
+    if (formData.password !== formData.confirmPassword) {
+      setError('Parolele nu coincid');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Sign up the user
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      if (data.user) {
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: formData.email,
+            full_name: formData.name,
+            user_type: userType,
+            phone: formData.phone,
+          });
+
+        if (profileError) {
+          setError('Eroare la crearea profilului');
+          return;
+        }
+
+        // Redirect to confirmation page or dashboard
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      setError('A apărut o eroare. Vă rugăm să încercați din nou.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +92,7 @@ export default function RegisterPage() {
               <p className="text-center text-gray-700 mb-6">Vă rugăm să selectați tipul de cont:</p>
               
               <button 
-                onClick={() => setUserType('pet-owner')}
+                onClick={() => setUserType('pet_owner')}
                 className="block w-full bg-white border-2 border-primary text-primary hover:bg-blue-50 font-medium py-3 px-4 rounded-lg mb-4 transition-colors"
               >
                 <div className="flex items-center justify-center">
@@ -53,7 +104,7 @@ export default function RegisterPage() {
               </button>
               
               <button 
-                onClick={() => setUserType('hotel-owner')}
+                onClick={() => setUserType('hotel_owner')}
                 className="block w-full bg-white border-2 border-secondary text-secondary hover:bg-green-50 font-medium py-3 px-4 rounded-lg transition-colors"
               >
                 <div className="flex items-center justify-center">
@@ -77,20 +128,27 @@ export default function RegisterPage() {
                 <button 
                   onClick={() => setUserType(null)} 
                   className="text-gray-600 hover:text-gray-900 mr-2"
+                  disabled={loading}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <h2 className="text-xl font-semibold">
-                  {userType === 'pet-owner' ? 'Înregistrare proprietar de animale' : 'Înregistrare proprietar de hotel'}
+                  {userType === 'pet_owner' ? 'Înregistrare proprietar de animale' : 'Înregistrare proprietar de hotel'}
                 </h2>
               </div>
+              
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                  {error}
+                </div>
+              )}
               
               <form onSubmit={handleRegister} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-gray-700 mb-1">
-                    {userType === 'pet-owner' ? 'Nume complet' : 'Numele afacerii'}
+                    {userType === 'pet_owner' ? 'Nume complet' : 'Numele afacerii'}
                   </label>
                   <input
                     type="text"
@@ -100,6 +158,7 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
+                    disabled={loading}
                   />
                 </div>
                 
@@ -113,6 +172,20 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-gray-700 mb-1">Telefon</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    disabled={loading}
                   />
                 </div>
                 
@@ -127,6 +200,7 @@ export default function RegisterPage() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                     minLength={8}
+                    disabled={loading}
                   />
                   <p className="text-xs text-gray-500 mt-1">Minim 8 caractere</p>
                 </div>
@@ -141,6 +215,7 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                     required
+                    disabled={loading}
                   />
                 </div>
                 
@@ -153,6 +228,7 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="h-4 w-4 mt-1 text-primary focus:ring-primary border-gray-300 rounded"
                     required
+                    disabled={loading}
                   />
                   <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                     Am citit și sunt de acord cu <a href="#" className="text-primary hover:underline">termenii și condițiile</a> și <a href="#" className="text-primary hover:underline">politica de confidențialitate</a>.
@@ -161,11 +237,12 @@ export default function RegisterPage() {
                 
                 <button 
                   type="submit" 
-                  className={`w-full text-white font-medium py-2 px-4 rounded-md transition-colors ${
-                    userType === 'pet-owner' ? 'bg-primary hover:bg-blue-600' : 'bg-secondary hover:bg-green-600'
+                  disabled={loading}
+                  className={`w-full text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 ${
+                    userType === 'pet_owner' ? 'bg-primary hover:bg-blue-600' : 'bg-secondary hover:bg-green-600'
                   }`}
                 >
-                  Înregistrare
+                  {loading ? 'Se înregistrează...' : 'Înregistrare'}
                 </button>
                 
                 <div className="text-center mt-4">
