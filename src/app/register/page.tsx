@@ -42,35 +42,61 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      // Sign up the user
+      console.log('Attempting signup with data:', {
+        email: formData.email,
+        metadata: {
+          full_name: formData.name,
+          user_type: userType,
+          phone: formData.phone,
+        }
+      });
+
+      // Sign up the user with metadata
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+            user_type: userType,
+            phone: formData.phone,
+          }
+        }
       });
 
       if (signUpError) {
+        console.error('Sign up error:', signUpError);
         setError(signUpError.message);
         return;
       }
 
       if (data.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: formData.email,
-            full_name: formData.name,
-            user_type: userType,
-            phone: formData.phone,
-          });
+        console.log('User created successfully:', data.user);
+        
+        // Create profile manually as fallback (in case trigger fails)
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: formData.email,
+              full_name: formData.name,
+              user_type: userType,
+              phone: formData.phone,
+            });
 
-        if (profileError) {
-          setError('Eroare la crearea profilului');
-          return;
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            // Don't throw error, just log it since trigger might have worked
+          } else {
+            console.log('Profile created successfully');
+          }
+        } catch (profileErr) {
+          console.error('Profile creation exception:', profileErr);
         }
 
-        // Redirect to confirmation page or dashboard
+        // Profile will be created automatically by the database trigger
+        // For development, we'll redirect to dashboard regardless of email confirmation
         router.push('/dashboard');
       }
     } catch {
